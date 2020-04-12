@@ -30,6 +30,8 @@ static esp_ble_scan_params_t ble_scan_params = {
 
 static void esp_gap_callback(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 {
+	uint8_t *adv_name = NULL;
+	uint8_t adv_name_len = 0;
 	
 	switch (event) {
 		
@@ -57,14 +59,17 @@ static void esp_gap_callback(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_
 			switch (scan_result->scan_rst.search_evt) {
 				case ESP_GAP_SEARCH_INQ_RES_EVT:
 			        	//ESP_LOGI(TAG, "Inquiry result for a peer device");
-						ESP_LOGI(TAG,"%02X:%02X:%02X:%02X:%02X:%02X RSSI:%02ddBm",	
+						adv_name = esp_ble_resolve_adv_data(scan_result->scan_rst.ble_adv, ESP_BLE_AD_TYPE_NAME_CMPL, &adv_name_len);
+						adv_name[adv_name_len] = 0;
+						ESP_LOGI(TAG,"%02X:%02X:%02X:%02X:%02X:%02X RSSI:%02ddBm %s",	
 								scan_result->scan_rst.bda[0],
 								scan_result->scan_rst.bda[1],
 								scan_result->scan_rst.bda[2],
 								scan_result->scan_rst.bda[3],
 								scan_result->scan_rst.bda[4],
 								scan_result->scan_rst.bda[5],
-								scan_result->scan_rst.rssi);
+								scan_result->scan_rst.rssi,
+								adv_name);
 						break;
 		        case ESP_GAP_SEARCH_INQ_CMPL_EVT:
 		        		ESP_LOGI(TAG, "Inquiry complete.");
